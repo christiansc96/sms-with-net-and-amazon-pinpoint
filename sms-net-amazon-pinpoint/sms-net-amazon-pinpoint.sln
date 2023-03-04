@@ -1,0 +1,25 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.2.32630.192
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "sms-net-amazon-pinpoint", "sms-net-amazon-pinpoint\sms-net-amazon-pinpoint.csproj", "{146086E5-89BD-451F-8010-DAD099F8B59E}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{146086E5-89BD-451F-8010-DAD099F8B59E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{146086E5-89BD-451F-8010-DAD099F8B59E}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{146086E5-89BD-451F-8010-DAD099F8B59E}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{146086E5-89BD-451F-8010-DAD099F8B59E}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {90B52C8A-5B44-4A29-ACA4-82CDB6939DC4}
+	EndGlobalSection
+EndGlobal
