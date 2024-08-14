@@ -2,6 +2,7 @@
 using Amazon.Pinpoint;
 using Amazon.Pinpoint.Model;
 using Amazon.Runtime;
+using sms_net_amazon_pinpoint.Exceptions;
 using sms_net_amazon_pinpoint.Models;
 
 namespace sms_net_amazon_pinpoint.SmsManager
@@ -16,38 +17,57 @@ namespace sms_net_amazon_pinpoint.SmsManager
 
         public async Task Execute(SmsNotifyDto model)
         {
-            string phoneNumberCode = "+504";
-
-            var awsCredentials = new BasicAWSCredentials(awsAccessKey, awsSecretKey);
-            using AmazonPinpointClient client = new(awsCredentials, RegionEndpoint.GetBySystemName(awsRegion));
-
-            string cleanPhoneNumber = $"{phoneNumberCode}{model.PhoneNumber?.Trim().Replace("-", string.Empty)}";
-            var response = await client.SendMessagesAsync(new SendMessagesRequest
+            string? cleanPhoneNumber = NormalizePhoneNumber(model.PhoneNumber);
+            if (!string.IsNullOrEmpty(model.Message))
             {
-                ApplicationId = awsProjectId,
-                MessageRequest = new MessageRequest
+                BasicAWSCredentials awsCredentials = new(awsAccessKey, awsSecretKey);
+                using AmazonPinpointClient client = new(awsCredentials, RegionEndpoint.GetBySystemName(awsRegion));
+                SendMessagesResponse response = await client.SendMessagesAsync(new SendMessagesRequest
                 {
-                    Addresses = new Dictionary<string, AddressConfiguration>
+                    ApplicationId = awsProjectId,
+                    MessageRequest = new MessageRequest
+                    {
+                        Addresses = new Dictionary<string, AddressConfiguration>
                         {
                             {
-                                cleanPhoneNumber,
+                                cleanPhoneNumber!,
                                 new AddressConfiguration
                                 {
                                     ChannelType = "SMS"
                                 }
                             }
                         },
-                    MessageConfiguration = new DirectMessageConfiguration
-                    {
-                        SMSMessage = new SMSMessage
+                        MessageConfiguration = new DirectMessageConfiguration
                         {
-                            Body = model.Message ?? "",
-                            MessageType = awsMessageType,
+                            SMSMessage = new SMSMessage
+                            {
+                                Body = model.Message,
+                                MessageType = awsMessageType,
+                            }
                         }
                     }
-                }
-            });
-            var x = response;
+                });
+            }
+            else
+                throw new InvalidPhoneNumberException("El mensaje no puede estar vacío.");
+        }
+
+        private static string? NormalizePhoneNumber(string? phoneNumber)
+        {
+            if (string.IsNullOrEmpty(phoneNumber))
+                throw new InvalidPhoneNumberException("El número de teléfono no puede estar vacío.");
+
+            string cleanPhoneNumber = phoneNumber.Trim().Replace(" ", "").Replace("-", "");
+            if (cleanPhoneNumber.StartsWith("+504"))
+                return cleanPhoneNumber;
+
+            if (cleanPhoneNumber.StartsWith("+1"))
+                cleanPhoneNumber = cleanPhoneNumber.Substring(2);
+
+            if (cleanPhoneNumber.Length != 10 || !long.TryParse(cleanPhoneNumber, out _))
+                throw new InvalidPhoneNumberException("El número de teléfono no es un número válido de 10 dígitos.");
+
+            return $"+1{cleanPhoneNumber}";
         }
     }
 }

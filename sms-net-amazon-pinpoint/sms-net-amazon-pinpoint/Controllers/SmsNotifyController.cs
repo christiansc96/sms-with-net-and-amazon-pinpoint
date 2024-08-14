@@ -1,4 +1,6 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Cors;
+using Microsoft.AspNetCore.Mvc;
+using sms_net_amazon_pinpoint.Filter;
 using sms_net_amazon_pinpoint.Models;
 using sms_net_amazon_pinpoint.SmsManager;
 
@@ -6,6 +8,7 @@ namespace sms_net_amazon_pinpoint.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
+    [EnableCors("AllowSpecificOrigin")]
     public class SmsNotifyController : ControllerBase
     {
         private readonly ISmsNotifyRepository _smsNotifyRepository;
@@ -16,16 +19,26 @@ namespace sms_net_amazon_pinpoint.Controllers
         }
 
         [HttpPost]
+        [RequireHeaderKey("X-Api-Key")]
         public async Task<IActionResult> SendSms(SmsNotifyDto model)
         {
             try
             {
                 await _smsNotifyRepository.Execute(model);
-                return Ok();
+                return Ok(new
+                {
+                    Message = "SMS enviado exitosamente",
+                    StatusCode = 200
+                });
             }
-            catch
+            catch(Exception ex)            
             {
-                return BadRequest();
+                return BadRequest(new
+                {
+                    Message = "Error al enviar el SMS",
+                    StatusCode = 400,
+                    Error = ex.Message,
+                });
             }
         }
     }
